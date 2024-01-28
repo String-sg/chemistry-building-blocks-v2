@@ -1,0 +1,93 @@
+Sub QueryDiagramLabel()
+    Dim Http As Object
+    Set Http = CreateObject("MSXML2.XMLHTTP")
+    Dim userQuery As String
+    Dim payload As String
+    Dim apiUrl As String
+    Dim responseText As String
+
+    ' Get user input
+    userQuery = InputBox("Enter your query:")
+
+    ' Construct the query string
+    Dim queryString As String
+    
+    
+queryString = "I have the following diagram labels to choose from. Please choose the correct label given the user's query.\n" & "Diagram labels:\n" & "- exothermic energy profile diagram\n" & "- endothermic energy profile diagram\n" & "- blotzmann distribution diagram\n" & "- electrolytic cell diagram\n" & "---\n" & "User Query:\n" & userQuery & "\n" & "---\n" & "Your output should be a string of the label you choose. For example, if you choose (Energy Profile Diagram), your output should only be (Energy Profile Diagram)."
+    
+ 'queryString = "I have the following diagram labels to choose from. Please choose the correct label given the user's query." & vbCrLf & _
+              "Diagram labels:" & vbCrLf & _
+              "- exothermic energy profile diagram" & vbCrLf & _
+              "- endothermic energy profile diagram" & vbCrLf & _
+              "- blotzmann distribution diagram" & vbCrLf & _
+              "- electrolytic cell diagram" & vbCrLf & _
+              "---" & vbCrLf & _
+              "User Query:" & vbCrLf & _
+              vbCrLf & userQuery & vbCrLf & _
+              "---" & vbCrLf & _
+              "Your output should be a string of the label you choose. For example, if you choose (Energy Profile Diagram), your output should only be (Energy Profile Diagram)."
+    
+    
+    'MsgBox queryString
+
+    ' Prepare the API request
+    apiUrl = "..." 'Insert API URL here. I built one using PaLM so you might want to change the code to match OpenAI's API key
+    payload = "{""query_string"": """ & queryString & """, ""temperature"": 0, ""max_output_tokens"": 800}"
+
+    ' Send the request
+    With Http
+        .Open "POST", apiUrl, False
+        .SetRequestHeader "Content-Type", "application/json"
+        .Send payload
+        responseText = .responseText
+        
+        'MsgBox responseText
+        
+    End With
+
+    ' Parse the JSON response
+    Dim output As String
+    output = ExtractJsonValue(responseText, "response")
+
+    ' Display the output
+    'MsgBox output
+    
+    ' After processing the output
+If LCase(output) = "exothermic energy profile diagram" Then
+    InsertBuildingBlock "Exothermic"  ' Replace "Exothermic" with the actual name of your Quick Part
+Else
+    MsgBox "There are no relevant diagrams"
+End If
+    
+    
+    
+End Sub
+
+Function ExtractJsonValue(jsonString As String, key As String) As String
+    Dim keyPos As Integer, startPos As Integer, endPos As Integer, delimiter As String
+
+    keyPos = InStr(jsonString, """" & key & """")
+
+    If keyPos = 0 Then
+        ExtractJsonValue = "Key not found"
+        Exit Function
+    End If
+
+    startPos = InStr(keyPos, jsonString, ":") + 1
+    delimiter = Mid(jsonString, startPos, 1)
+
+    If delimiter = """" Then ' Value is a string
+        startPos = startPos + 1
+        endPos = InStr(startPos, jsonString, """")
+
+        ExtractJsonValue = Mid(jsonString, startPos, endPos - startPos)
+    Else ' Value is a number or boolean
+        endPos = InStr(startPos, jsonString, ",")
+        If endPos = 0 Then
+            endPos = InStr(startPos, jsonString, "}")
+        End If
+
+        ExtractJsonValue = Mid(jsonString, startPos, endPos - startPos)
+        ExtractJsonValue = Trim(ExtractJsonValue)
+    End If
+End Function
