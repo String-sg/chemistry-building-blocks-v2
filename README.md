@@ -48,6 +48,3 @@ chemistry-building-blocks-v2/
 ├── README.md           # This file
 ```
 
-## 📝 License & Credits
-
-All rights reserved to the original creators of the Chemistry Building Blocks macro toolkit. This version is an educational enhancement module.
