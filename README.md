@@ -1,50 +1,76 @@
 # Chemistry Building Blocks v2
 
-A modular enhancement or extension for the Chemistry Building Blocks Word-based educational toolkit. This version builds upon the original [Chemistry Building Blocks](https://github.com/String-sg/Chemistry-Building-Blocks) macro-enabled system used to teach atomic structure, bonding, and the periodic table.
+A historical VBA prototype for selecting an existing chemistry diagram from a
+natural-language query and inserting its Word Quick Part. It selects a stored
+building block; it does not generate a new diagram.
 
-## 🔗 Base System Requirement
+## Origin and relationship to the base toolkit
 
-This version (`v2`) is **not standalone**. It requires the original macro-enabled base system:
+[Kuang Wen](https://github.com/kwen1510) created this repository and uploaded the
+[VBA fragment on 28 January 2024](https://github.com/String-sg/chemistry-building-blocks-v2/commit/8451c9e8b6ccd1a636bd56b378c631e6f98a243b).
+The [original description](https://github.com/String-sg/chemistry-building-blocks-v2/blob/db31f1a3236fbb62714c5ec5962eec37ad9131f9/README.md)
+identifies it as an additional layer over Microsoft Word's Quick Parts in
+[Chemistry Building Blocks](https://github.com/String-sg/Chemistry-Building-Blocks).
 
-- `Chemistry Building Blocks_StartUp_v5.dotm`
-- Installed Microsoft Word with macros enabled
-- Base files (`.dotx`, `.dotm`) found in the [Chemistry Building Blocks Main Repository](https://github.com/String-sg/Chemistry-Building-Blocks)
+The base toolkit supplies the reusable Word diagram assets. This repository
+contains only `Code.txt` and this README: it does not include those assets, a Word
+template, a packaged add-in, or the complete host implementation. The `v2` name
+identifies this experiment, rather than a complete replacement for the base
+toolkit.
 
-## 🛠 Installation
+## What the prototype does
 
-1. **Download the base system** from:
-   ```
-   https://github.com/String-sg/Chemistry-Building-Blocks
-   ```
+[`Code.txt`](Code.txt) contains `QueryDiagramLabel` and a small
+`ExtractJsonValue` helper. The intended flow is:
 
-2. **Install this v2 module**:
-   - Copy or merge the contents of this repo into the same directory as the base `.dotm` files
-   - Ensure any macro references or modules are updated using the Word Developer tab > Macros > Organizer
+1. Ask for a query using a VBA `InputBox`.
+2. Send a prompt asking a service to choose from four diagram labels:
+   `exothermic energy profile diagram`, `endothermic energy profile diagram`,
+   `blotzmann distribution diagram` (spelled this way in the source), and
+   `electrolytic cell diagram`.
+3. Read a `response` value from the service's JSON reply.
+4. If the lowercased output exactly matches `exothermic energy profile diagram`,
+   call `InsertBuildingBlock "Exothermic"`. Every other output displays
+   “There are no relevant diagrams”.
 
-3. **Open the StartUp Template**:
-   - Open `Chemistry Building Blocks_StartUp_v5.dotm`
-   - Enable macros when prompted
-   - Use new features and extensions provided in `v2`
+Only the exothermic label has an insertion branch. Listing four labels in the
+prompt does not implement insertion for all four.
 
-## 🚀 Features in v2
+## Incomplete integration and compatibility
 
-- Enhanced activity blocks for building chemical compounds
-- Improved interface templates
-- Additional macro scripts (if included in `.txt` or `.bas` form)
-- Compatibility improvements with modern Word versions
+This is source for inspection and adaptation, not a ready-to-install extension.
+Copying these files alongside a Word template does not install the prototype.
+A developer would need to supply and validate:
 
-## 💡 Suggested Enhancements
+- A host Word/VBA project with an `InsertBuildingBlock` implementation and an
+  existing Quick Part named `Exothermic`. Neither is defined or included here.
+- A reachable service URL in place of `apiUrl = "..."`. The source comment refers
+  to an author's PaLM-based service; no service implementation or live endpoint
+  is supplied, and that comment does not establish current provider support.
+- A matching request/response contract. The fragment sends `query_string`,
+  `temperature`, and `max_output_tokens` and expects a `response` field. It is not
+  a complete adapter for a current model provider; request encoding, response
+  parsing and failure handling need validation before use.
+- A compatible execution environment. The fragment creates the Windows COM
+  object `MSXML2.XMLHTTP`. This repository provides no verified modern Word/OS
+  compatibility matrix or cross-platform implementation.
 
-- 🧬 Auto-marking functionality
-- 🌐 Export to HTML or web format for browser delivery
-- 📊 Logging and progress tracking per student
-- 🔐 Add licensing or login layer for secure classroom use
+The code has not changed since January 2024; later commits through June 2025
+changed the README. The repository does not demonstrate enhanced activity blocks,
+new interface templates, or compatibility improvements. No automated tests or
+Word execution results are included. Any live adaptation would send the entered
+query to the configured external service.
 
-## 📁 Folder Structure
+## Status and possible future work
 
-```
-chemistry-building-blocks-v2/
-├── Code.txt            # Supplementary or updated macros/modules
-├── README.md           # This file
-```
+Retain this as a historical prototype with its attribution. There is no supported
+installation or product release here. Consolidation into the base toolkit's
+historical examples, or archival of this repository, requires a separate owner
+decision.
 
+A bounded product hypothesis is natural-language retrieval of vetted, editable
+chemistry diagrams. Its value is unvalidated: compare it with manual selection
+and a searchable labelled catalogue using fixed teacher queries, selection
+accuracy and preparation time. Revival would need a maintainer, demonstrated
+teacher demand, complete label mappings, an explicit host/service contract and
+tested Word/OS versions before making installation or compatibility claims.
